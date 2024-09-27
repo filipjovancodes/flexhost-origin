@@ -14,7 +14,7 @@ export class MyAmplifyAppStack extends cdk.Stack {
     const bucket = s3.Bucket.fromBucketName(this, 'MyBucket', 'test-amplify-filipjov')
 
     const asset = new Asset(this, 'S3Asset', {
-      path: '/Users/filipjovanovic/Projects/test-manual-deployment/test/build/Archive.zip'
+      path: '/Users/filipjovanovic/Projects/test-manual-deployment/my-amplify-app/react-app/build/Archive.zip'
     });
 
     // Define the Amplify app
