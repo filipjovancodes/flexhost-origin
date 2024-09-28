@@ -51,7 +51,7 @@ export class MyAmplifyAppStack extends cdk.Stack {
       actions: ['s3:GetObject'],
       resources: [
         `arn:aws:s3:::test-amplify-filipjov/*`,
-        `arn:aws:s3:::test-amplify-filipjov`
+        `arn:aws:s3:::test-amplify-filipjov`,
       ], // Specify the S3 bucket and all objects in it
     }));
 
