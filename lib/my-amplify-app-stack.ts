@@ -8,18 +8,14 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class MyAmplifyAppStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, appName: string, bucketName: string, buildZipPath: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const bucket = s3.Bucket.fromBucketName(this, 'MyBucket', 'test-amplify-filipjov')
-
-    const asset = new Asset(this, 'S3Asset', {
-      path: '/Users/filipjovanovic/Projects/test-manual-deployment/my-amplify-app/react-app/build/Archive.zip'
-    });
+    const asset = new Asset(this, 'S3Asset', { path: buildZipPath });
 
     // Define the Amplify app
-    const amplifyApp = new amplify.App(this, 'MyAmplifyApp', {
-      appName: 'MyReactApp1',
+    const amplifyApp = new amplify.App(this, id, {
+      appName: appName,
       customRules: [
         {
           source: '/<*>',
@@ -44,14 +40,16 @@ export class MyAmplifyAppStack extends cdk.Stack {
       ), // Path to your lambda code
     });
 
+    const bucket = s3.Bucket.fromBucketName(this, 'MyBucket', bucketName)
+
     bucket.grantRead(myFunction)
 
     // Add an inline policy to the Lambda function's role for S3 read access
     myFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['s3:GetObject'],
       resources: [
-        `arn:aws:s3:::test-amplify-filipjov/*`,
-        `arn:aws:s3:::test-amplify-filipjov`,
+        `arn:aws:s3:::*/*`,
+        `arn:aws:s3:::*`,
       ], // Specify the S3 bucket and all objects in it
     }));
 
