@@ -7,7 +7,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as iam from 'aws-cdk-lib/aws-iam';
 
-export class MyAmplifyAppStack extends cdk.Stack {
+export class AmplifyStack extends cdk.Stack {
   constructor(scope: Construct, id: string, appName: string, bucketName: string, buildZipPath: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -32,7 +32,7 @@ export class MyAmplifyAppStack extends cdk.Stack {
     })
 
     // Define a Lambda function
-    const myFunction = new lambda.Function(this, 'MyLambdaFunction', {
+    const myFunction = new lambda.Function(this, 'S3Lambda', {
       runtime: lambda.Runtime.NODEJS_20_X, // or your desired runtime
       handler: 'index.handler', // The file and function name
       code: lambda.Code.fromAsset(
@@ -42,18 +42,18 @@ export class MyAmplifyAppStack extends cdk.Stack {
 
     const bucket = s3.Bucket.fromBucketName(this, 'MyBucket', bucketName)
 
-    bucket.grantRead(myFunction)
+    bucket.grantReadWrite(myFunction)
 
     // Add an inline policy to the Lambda function's role for S3 read access
     myFunction.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['s3:GetObject'],
+      actions: ['s3:*'],
       resources: [
         `arn:aws:s3:::*/*`,
         `arn:aws:s3:::*`,
       ], // Specify the S3 bucket and all objects in it
     }));
 
-    const api = new apigateway.LambdaRestApi(this, 'MyApi', {
+    const api = new apigateway.LambdaRestApi(this, 'S3LambdaAPI', {
       handler: myFunction,
       proxy: false,
       defaultCorsPreflightOptions: {
